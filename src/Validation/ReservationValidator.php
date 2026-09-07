@@ -11,6 +11,12 @@ final class ReservationValidator
     public function validate(array $data): array
     {
         $errors = [];
+        if (
+            !isset($data['salle_id']) ||
+            !v::intVal()->positive()->validate($data['salle_id'])
+        ) {
+            $errors['salle_id'] = 'La salle est obligatoire.';
+        }
 
         if (
             !isset($data['responsable']) ||
