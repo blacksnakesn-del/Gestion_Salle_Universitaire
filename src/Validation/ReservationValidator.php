@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Validation;
+
+use Respect\Validation\Validator as v;
+
+final class ReservationValidator
+{
+    public function validate(array $data): array
+    {
+        $errors = [];
+
+        if (
+            !isset($data['responsable']) ||
+            !v::stringType()->notEmpty()->validate($data['responsable'])
+        ) {
+            $errors['responsable'] = 'Le responsable est obligatoire.';
+        }
+
+        if (
+            !isset($data['email']) ||
+            !v::email()->validate($data['email'])
+        ) {
+            $errors['email'] = 'L’adresse email est invalide.';
+        }
+
+        if (
+            !isset($data['motif']) ||
+            !v::stringType()
+                ->length(5, 255)
+                ->validate($data['motif'])
+        ) {
+            $errors['motif'] = 'Le motif doit contenir entre 5 et 255 caractères.';
+        }
+
+        if (
+            !isset($data['date_debut']) ||
+            !v::dateTime('Y-m-d H:i:s')->validate($data['date_debut'])
+        ) {
+            $errors['date_debut'] = 'La date de début est invalide.';
+        }
+
+        if (
+            !isset($data['date_fin']) ||
+            !v::dateTime('Y-m-d H:i:s')->validate($data['date_fin'])
+        ) {
+            $errors['date_fin'] = 'La date de fin est invalide.';
+        }
+
+        return $errors;
+    }
+}
