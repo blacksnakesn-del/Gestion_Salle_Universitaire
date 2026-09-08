@@ -1,0 +1,26 @@
+services:
+
+  app:
+    build: .
+    container_name: gestion_universitaire_app
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.4
+    container_name: gestion_universitaire_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gestion_universitaire
+      MYSQL_USER: gestion_user
+      MYSQL_PASSWORD: gestion_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

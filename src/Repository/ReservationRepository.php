@@ -7,29 +7,23 @@ namespace App\Repository;
 use App\Model\Reservation;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Collection;
+use App\DTO\ReservationDTO;
 
 final class ReservationRepository
 {
-    /**
-     * Récupère toutes les réservations.
-     */
+     
     public function findAll(): Collection
     {
         return Reservation::all();
     }
 
-    /**
-     * Recherche une réservation par son identifiant.
-     */
+    
     public function findById(int $id): ?Reservation
     {
         return Reservation::find($id);
     }
 
-    /**
-     * Vérifie si une salle possède déjà une réservation
-     * confirmée sur la période demandée.
-     */
+    
     public function hasOverlap(
         int $salleId,
         DateTimeImmutable $dateDebut,
@@ -43,11 +37,22 @@ final class ReservationRepository
             ->exists();
     }
 
-    /**
-     * Récupère les réservations d'une salle.
-     */
+    
     public function findBySalleId(int $salleId): Collection
     {
         return Reservation::where('salle_id', $salleId)->get();
+    }
+
+    public function create(ReservationDTO $dto): Reservation
+    {
+        return Reservation::create([
+            'salle_id' => $dto->salleId,
+            'responsable' => $dto->responsable,
+            'email' => $dto->email,
+            'motif' => $dto->motif,
+            'date_debut' => $dto->dateDebut,
+            'date_fin' => $dto->dateFin,
+            'statut' => $dto->statut,
+        ]);
     }
 }
