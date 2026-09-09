@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\DTO\ReservationDTO;
+use App\Exception\SalleIndisponibleException;
+use App\Exception\ReservationIntrouvableException;
 use App\Model\Reservation;
-use App\Repository\ReservationRepository;
-use App\Repository\SalleRepository;
+use App\Repository\ReservationRepositoryInterface;
+use App\Repository\SalleRepositoryInterface;
 use DateTimeImmutable;
 use RuntimeException;
 
 final class ReservationService
 {
     public function __construct(
-        private SalleRepository $salleRepository,
-        private ReservationRepository $reservationRepository
+        private SalleRepositoryInterface $salles,
+        private ReservationRepositoryInterface $reservations
     ) {
     }
 
@@ -23,29 +25,29 @@ final class ReservationService
         ReservationDTO $dto
     ): Reservation {
         // 1. Vérifier que la salle existe
-        $salle = $this->salleRepository->findById($dto->salleId);
+        $salle = $this->salles->findById($dto->salleId);
 
         if ($salle === null) {
-            throw new RuntimeException(
+            throw new ReservationIntrouvableException(
                 'La salle demandée n’existe pas.'
             );
         }
 
         // 2. Vérifier que la salle est active
         if (!$salle->active) {
-            throw new RuntimeException(
+            throw new SalleIndisponibleException(
                 'Cette salle est inactive et ne peut pas être réservée.'
             );
         }
 
-        // 3. Vérifier que la date de début est avant la date de fin
+        // 3. Vérifier que le début précède la fin
         if ($dto->dateDebut >= $dto->dateFin) {
             throw new RuntimeException(
                 'La date de début doit être antérieure à la date de fin.'
             );
         }
 
-        // 4. Vérifier que la réservation ne dépasse pas 4 heures
+        // 4. Vérifier la durée maximale
         $duree = $dto->dateFin->getTimestamp()
             - $dto->dateDebut->getTimestamp();
 
@@ -55,7 +57,7 @@ final class ReservationService
             );
         }
 
-        // 5. Vérifier que la réservation commence dans le futur
+        // 5. Vérifier que la réservation est future
         $maintenant = new DateTimeImmutable();
 
         if ($dto->dateDebut <= $maintenant) {
@@ -66,18 +68,31 @@ final class ReservationService
 
         // 6. Vérifier les chevauchements
         if (
-            $this->reservationRepository->hasOverlap(
+            $this->reservations->hasOverlap(
                 $dto->salleId,
                 $dto->dateDebut,
                 $dto->dateFin
             )
         ) {
-            throw new RuntimeException(
+            throw new SalleIndisponibleException(
                 'Cette salle est déjà réservée sur cette période.'
             );
         }
 
-        // 7. Créer la réservation
-        return $this->reservationRepository->create($dto);
+        // 7. Créer et enregistrer la réservation
+        return $this->reservations->create($dto);
+    }
+
+    public function cancelReservation(int $id): Reservation
+    {
+        $reservation = $this->reservations->findById($id);
+
+        if ($reservation === null) {
+            throw new ReservationIntrouvableException(
+                'La réservation demandée n’existe pas.'
+            );
+        }
+
+        return $this->reservations->cancel($reservation);
     }
 }
