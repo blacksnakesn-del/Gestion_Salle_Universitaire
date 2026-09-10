@@ -7,6 +7,10 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 return function (Capsule $capsule): void {
     $schema = $capsule->schema();
 
+    if ($schema->hasTable('salles')) {
+        return;
+    }
+
     $schema->create('salles', function ($table): void {
         $table->id();
 

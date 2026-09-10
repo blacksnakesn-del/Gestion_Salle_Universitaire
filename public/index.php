@@ -10,14 +10,25 @@ use App\Service\AnnulerReservationService;
 use App\Service\ReservationService;
 use App\Validation\ReservationValidator;
 use App\Validation\SalleValidator;
+use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
-use FastRoute\simpleDispatcher;
+use function FastRoute\simpleDispatcher;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 // Initialisation Eloquent / base de données.
-require_once dirname(__DIR__) . '/config/database.php';
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
+if (is_file(dirname(__DIR__) . '/.env')) {
+    $dotenv->load();
+}
+
+$database = require dirname(__DIR__) . '/config/database.php';
+$database();
 
 // Construction manuelle des dépendances.
 // Elle sera centralisée dans PHP-DI lors de la Partie 11.

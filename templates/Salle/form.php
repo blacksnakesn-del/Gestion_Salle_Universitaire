@@ -6,6 +6,7 @@ $types = ['cours', 'informatique', 'laboratoire', 'amphitheatre', 'reunion'];
 
 <div class="form-shell card">
 <form method="post" action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8') ?>" novalidate>
+    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <div class="form-grid">
         <div class="form-group full"><label for="nom">Nom de la salle</label><input class="form-control <?= isset($errors['nom']) ? 'input-error' : '' ?>" id="nom" name="nom" value="<?= htmlspecialchars((string) ($old['nom'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" placeholder="Ex. Salle B12" required><?php if (isset($errors['nom'])): ?><span class="field-error"><?= htmlspecialchars($errors['nom'], ENT_QUOTES, 'UTF-8') ?></span><?php endif; ?></div>
         <div class="form-group"><label for="batiment">Bâtiment</label><input class="form-control <?= isset($errors['batiment']) ? 'input-error' : '' ?>" id="batiment" name="batiment" value="<?= htmlspecialchars((string) ($old['batiment'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" placeholder="Ex. Bâtiment A" required><?php if (isset($errors['batiment'])): ?><span class="field-error"><?= htmlspecialchars($errors['batiment'], ENT_QUOTES, 'UTF-8') ?></span><?php endif; ?></div>

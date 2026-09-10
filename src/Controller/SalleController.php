@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\DTO\SalleDTO;
 use App\Repository\SalleRepository;
+use App\Security\Csrf;
 use App\Validation\SalleValidator;
 
 final class SalleController
@@ -22,7 +23,7 @@ final class SalleController
         $title = 'Salles';
         $success = $_GET['success'] ?? null;
 
-        require __DIR__ . '/../../templates/salle/index.php';
+        require __DIR__ . '/../../templates/Salle/index.php';
     }
 
     public function show(int $id): void
@@ -40,7 +41,10 @@ final class SalleController
             ->get();
         $title = 'Salle ' . $salle->nom;
 
-        require __DIR__ . '/../../templates/salle/show.php';
+        $success = $_GET['success'] ?? null;
+        $error = $_GET['error'] ?? null;
+
+        require __DIR__ . '/../../templates/Salle/show.php';
     }
 
     public function create(): void
@@ -56,21 +60,25 @@ final class SalleController
         ];
         $formAction = '/salles';
         $formMethodLabel = 'Créer la salle';
+        $csrfToken = Csrf::token();
 
-        require __DIR__ . '/../../templates/salle/form.php';
+        require __DIR__ . '/../../templates/Salle/form.php';
     }
 
     public function store(): void
     {
+        Csrf::verify($_POST['_csrf_token'] ?? null);
         $data = $_POST;
-        $errors = $this->validator->validate($data);
+        $validation = $this->validator->validate($data);
+        $errors = $validation->getErrors();
         $old = $data;
 
-        if ($errors !== []) {
+        if (!$validation->isValid()) {
             $title = 'Nouvelle salle';
             $formAction = '/salles';
             $formMethodLabel = 'Créer la salle';
-            require __DIR__ . '/../../templates/salle/form.php';
+            $csrfToken = Csrf::token();
+            require __DIR__ . '/../../templates/Salle/form.php';
             return;
         }
 
@@ -109,12 +117,14 @@ final class SalleController
         ];
         $formAction = '/salles/' . $salle->id . '/edit';
         $formMethodLabel = 'Enregistrer les modifications';
+        $csrfToken = Csrf::token();
 
-        require __DIR__ . '/../../templates/salle/form.php';
+        require __DIR__ . '/../../templates/Salle/form.php';
     }
 
     public function update(int $id): void
     {
+        Csrf::verify($_POST['_csrf_token'] ?? null);
         $salle = $this->salleRepository->findById($id);
 
         if ($salle === null) {
@@ -124,14 +134,16 @@ final class SalleController
         }
 
         $data = $_POST;
-        $errors = $this->validator->validate($data);
+        $validation = $this->validator->validate($data);
+        $errors = $validation->getErrors();
         $old = $data;
 
-        if ($errors !== []) {
+        if (!$validation->isValid()) {
             $title = 'Modifier ' . $salle->nom;
             $formAction = '/salles/' . $id . '/edit';
             $formMethodLabel = 'Enregistrer les modifications';
-            require __DIR__ . '/../../templates/salle/form.php';
+            $csrfToken = Csrf::token();
+            require __DIR__ . '/../../templates/Salle/form.php';
             return;
         }
 

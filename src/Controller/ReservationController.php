@@ -7,10 +7,12 @@ namespace App\Controller;
 use App\DTO\ReservationDTO;
 use App\Repository\ReservationRepository;
 use App\Repository\SalleRepository;
+use App\Security\Csrf;
 use App\Service\AnnulerReservationService;
 use App\Service\ReservationService;
 use App\Validation\ReservationValidator;
 use DateTimeImmutable;
+use RuntimeException;
 use Throwable;
 
 final class ReservationController
@@ -55,6 +57,9 @@ final class ReservationController
         }
 
         $title = 'Réservation #' . $reservation->id;
+        $success = $_GET['success'] ?? null;
+        $error = $_GET['error'] ?? null;
+        $csrfToken = Csrf::token();
 
         require __DIR__ . '/../../templates/reservation/show.php';
     }
@@ -65,8 +70,12 @@ final class ReservationController
         $salles = $this->salleRepository->findActive();
         $errors = [];
         $serviceError = null;
+        $csrfToken = Csrf::token();
+        $selectedSalleId = filter_input(INPUT_GET, 'salle_id', FILTER_VALIDATE_INT);
         $old = [
-            'salle_id' => '',
+            'salle_id' => $selectedSalleId !== false && $selectedSalleId !== null && $selectedSalleId > 0
+                ? (string) $selectedSalleId
+                : '',
             'responsable' => '',
             'email' => '',
             'motif' => '',
@@ -85,13 +94,15 @@ final class ReservationController
         $data['date_debut'] = $this->normalizeDateInput($data['date_debut'] ?? '');
         $data['date_fin'] = $this->normalizeDateInput($data['date_fin'] ?? '');
 
-        $errors = $this->validator->validate($data);
+        $validation = $this->validator->validate($data);
+        $errors = $validation->getErrors();
         $old = $_POST;
 
-        if ($errors !== []) {
+        if (!$validation->isValid()) {
             $title = 'Nouvelle réservation';
             $salles = $this->salleRepository->findActive();
             $serviceError = null;
+            $csrfToken = Csrf::token();
             require __DIR__ . '/../../templates/reservation/form.php';
             return;
         }
@@ -111,9 +122,13 @@ final class ReservationController
             header('Location: /reservations/' . $reservation->id . '?success=' . rawurlencode('Réservation créée avec succès.'));
             exit;
         } catch (Throwable $e) {
+            error_log((string) $e);
             $title = 'Nouvelle réservation';
             $salles = $this->salleRepository->findActive();
-            $serviceError = $e->getMessage();
+            $csrfToken = Csrf::token();
+            $serviceError = $e instanceof RuntimeException
+                ? $e->getMessage()
+                : 'Une erreur est survenue lors de la création de la réservation.';
             require __DIR__ . '/../../templates/reservation/form.php';
         }
     }
@@ -121,6 +136,7 @@ final class ReservationController
     public function cancel(int $id): void
     {
         try {
+            Csrf::verify($_POST['_csrf_token'] ?? null);
             $this->annulerReservationService->cancel($id);
 
             header('Location: /reservations/' . $id . '?success=' . rawurlencode('Réservation annulée avec succès.'));
