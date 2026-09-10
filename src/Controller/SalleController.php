@@ -1,19 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
+use App\DTO\SalleDTO;
 use App\Repository\SalleRepository;
+use App\Validation\SalleValidator;
 
 final class SalleController
 {
     public function __construct(
-        private readonly SalleRepository $salleRepository
+        private SalleRepository $salleRepository,
+        private SalleValidator $validator
     ) {
     }
 
     public function index(): void
     {
         $salles = $this->salleRepository->findAll();
+        $title = 'Salles';
+        $success = $_GET['success'] ?? null;
 
         require __DIR__ . '/../../templates/salle/index.php';
     }
@@ -24,18 +31,121 @@ final class SalleController
 
         if ($salle === null) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/errors/404.php';
+            require __DIR__ . '/../../templates/error/404.php';
             return;
         }
+
+        $reservations = $salle->reservations()
+            ->orderByDesc('date_debut')
+            ->get();
+        $title = 'Salle ' . $salle->nom;
 
         require __DIR__ . '/../../templates/salle/show.php';
     }
 
     public function create(): void
     {
+        $title = 'Nouvelle salle';
         $errors = [];
-        $old = [];
+        $old = [
+            'nom' => '',
+            'batiment' => '',
+            'capacite' => '',
+            'type' => '',
+            'active' => '1',
+        ];
+        $formAction = '/salles';
+        $formMethodLabel = 'Créer la salle';
 
         require __DIR__ . '/../../templates/salle/form.php';
+    }
+
+    public function store(): void
+    {
+        $data = $_POST;
+        $errors = $this->validator->validate($data);
+        $old = $data;
+
+        if ($errors !== []) {
+            $title = 'Nouvelle salle';
+            $formAction = '/salles';
+            $formMethodLabel = 'Créer la salle';
+            require __DIR__ . '/../../templates/salle/form.php';
+            return;
+        }
+
+        $dto = new SalleDTO(
+            nom: trim((string) $data['nom']),
+            batiment: trim((string) $data['batiment']),
+            capacite: (int) $data['capacite'],
+            type: (string) $data['type'],
+            active: isset($data['active']) && in_array((string) $data['active'], ['1', 'true'], true),
+        );
+
+        $this->salleRepository->create($dto);
+
+        header('Location: /salles?success=' . rawurlencode('Salle créée avec succès.'));
+        exit;
+    }
+
+    public function edit(int $id): void
+    {
+        $salle = $this->salleRepository->findById($id);
+
+        if ($salle === null) {
+            http_response_code(404);
+            require __DIR__ . '/../../templates/error/404.php';
+            return;
+        }
+
+        $title = 'Modifier ' . $salle->nom;
+        $errors = [];
+        $old = [
+            'nom' => $salle->nom,
+            'batiment' => $salle->batiment,
+            'capacite' => (string) $salle->capacite,
+            'type' => $salle->type,
+            'active' => $salle->active ? '1' : '0',
+        ];
+        $formAction = '/salles/' . $salle->id . '/edit';
+        $formMethodLabel = 'Enregistrer les modifications';
+
+        require __DIR__ . '/../../templates/salle/form.php';
+    }
+
+    public function update(int $id): void
+    {
+        $salle = $this->salleRepository->findById($id);
+
+        if ($salle === null) {
+            http_response_code(404);
+            require __DIR__ . '/../../templates/error/404.php';
+            return;
+        }
+
+        $data = $_POST;
+        $errors = $this->validator->validate($data);
+        $old = $data;
+
+        if ($errors !== []) {
+            $title = 'Modifier ' . $salle->nom;
+            $formAction = '/salles/' . $id . '/edit';
+            $formMethodLabel = 'Enregistrer les modifications';
+            require __DIR__ . '/../../templates/salle/form.php';
+            return;
+        }
+
+        $dto = new SalleDTO(
+            nom: trim((string) $data['nom']),
+            batiment: trim((string) $data['batiment']),
+            capacite: (int) $data['capacite'],
+            type: (string) $data['type'],
+            active: isset($data['active']) && in_array((string) $data['active'], ['1', 'true'], true),
+        );
+
+        $this->salleRepository->update($id, $dto);
+
+        header('Location: /salles/' . $id . '?success=' . rawurlencode('Salle modifiée avec succès.'));
+        exit;
     }
 }
