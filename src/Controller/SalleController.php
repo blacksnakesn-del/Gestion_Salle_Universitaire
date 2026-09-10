@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\DTO\SalleDTO;
-use App\Repository\SalleRepository;
+use App\Repository\SalleRepositoryInterface;
 use App\Security\Csrf;
 use App\Validation\SalleValidator;
 
 final class SalleController
 {
     public function __construct(
-        private SalleRepository $salleRepository,
+        private SalleRepositoryInterface $salleRepository,
         private SalleValidator $validator
     ) {
     }
@@ -23,7 +23,7 @@ final class SalleController
         $title = 'Salles';
         $success = $_GET['success'] ?? null;
 
-        require __DIR__ . '/../../templates/Salle/index.php';
+        renderView('Salle/index', compact('salles', 'title', 'success'));
     }
 
     public function show(int $id): void
@@ -32,7 +32,7 @@ final class SalleController
 
         if ($salle === null) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/error/404.php';
+            renderView('error/404');
             return;
         }
 
@@ -44,7 +44,7 @@ final class SalleController
         $success = $_GET['success'] ?? null;
         $error = $_GET['error'] ?? null;
 
-        require __DIR__ . '/../../templates/Salle/show.php';
+        renderView('Salle/show', compact('salle', 'reservations', 'title', 'success', 'error'));
     }
 
     public function create(): void
@@ -62,7 +62,7 @@ final class SalleController
         $formMethodLabel = 'Créer la salle';
         $csrfToken = Csrf::token();
 
-        require __DIR__ . '/../../templates/Salle/form.php';
+        renderView('Salle/form', compact('title', 'errors', 'old', 'formAction', 'formMethodLabel', 'csrfToken'));
     }
 
     public function store(): void
@@ -78,7 +78,7 @@ final class SalleController
             $formAction = '/salles';
             $formMethodLabel = 'Créer la salle';
             $csrfToken = Csrf::token();
-            require __DIR__ . '/../../templates/Salle/form.php';
+            renderView('Salle/form', compact('title', 'errors', 'old', 'formAction', 'formMethodLabel', 'csrfToken'));
             return;
         }
 
@@ -102,7 +102,7 @@ final class SalleController
 
         if ($salle === null) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/error/404.php';
+            renderView('error/404');
             return;
         }
 
@@ -119,7 +119,7 @@ final class SalleController
         $formMethodLabel = 'Enregistrer les modifications';
         $csrfToken = Csrf::token();
 
-        require __DIR__ . '/../../templates/Salle/form.php';
+        renderView('Salle/form', compact('title', 'errors', 'old', 'formAction', 'formMethodLabel', 'csrfToken'));
     }
 
     public function update(int $id): void
@@ -129,7 +129,7 @@ final class SalleController
 
         if ($salle === null) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/error/404.php';
+            renderView('error/404');
             return;
         }
 
@@ -143,7 +143,7 @@ final class SalleController
             $formAction = '/salles/' . $id . '/edit';
             $formMethodLabel = 'Enregistrer les modifications';
             $csrfToken = Csrf::token();
-            require __DIR__ . '/../../templates/Salle/form.php';
+            renderView('Salle/form', compact('title', 'errors', 'old', 'formAction', 'formMethodLabel', 'csrfToken'));
             return;
         }
 

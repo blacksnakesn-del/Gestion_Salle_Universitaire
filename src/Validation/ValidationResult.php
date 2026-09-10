@@ -21,6 +21,11 @@ final class ValidationResult
         return $this->errors;
     }
 
+    public function errors(): array
+    {
+        return $this->errors;
+    }
+
     public function getAcceptedData(): array
     {
         return $this->acceptedData;

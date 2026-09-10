@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\ReservationIntrouvableException;
-use App\Repository\ReservationRepository;
+use App\Repository\ReservationRepositoryInterface;
 use RuntimeException;
 
 final class AnnulerReservationService
 {
     public function __construct(
-        private ReservationRepository $reservationRepository
+        private ReservationRepositoryInterface $reservationRepository
     ) {
     }
 
@@ -29,7 +29,6 @@ final class AnnulerReservationService
             throw new RuntimeException('Cette réservation est déjà annulée.');
         }
 
-        $reservation->statut = 'annulée';
-        $reservation->save();
+        $this->reservationRepository->cancel($reservation);
     }
 }

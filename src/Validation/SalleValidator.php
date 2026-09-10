@@ -2,6 +2,8 @@
 
 namespace App\Validation;
 
+use Respect\Validation\Validator as v;
+
 final class SalleValidator implements ValidatorInterface
 {
     private const TYPES_AUTORISES = [
@@ -20,9 +22,9 @@ final class SalleValidator implements ValidatorInterface
        
         $nom = trim((string) ($data['nom'] ?? ''));
 
-        if ($nom === '') {
+        if (!v::stringType()->notEmpty()->length(2, 100)->validate($nom)) {
             $errors['nom'] = 'Le nom de la salle est obligatoire.';
-        } elseif (mb_strlen($nom) < 2 || mb_strlen($nom) > 100) {
+        } elseif (!v::stringType()->length(2, 100)->validate($nom)) {
             $errors['nom'] = 'Le nom doit contenir entre 2 et 100 caractères.';
         } else {
             $acceptedData['nom'] = $nom;
@@ -30,9 +32,9 @@ final class SalleValidator implements ValidatorInterface
 
         $batiment = trim((string) ($data['batiment'] ?? ''));
 
-        if ($batiment === '') {
+        if (!v::stringType()->notEmpty()->length(2, 100)->validate($batiment)) {
             $errors['batiment'] = 'Le bâtiment est obligatoire.';
-        } elseif (mb_strlen($batiment) < 2 || mb_strlen($batiment) > 100) {
+        } elseif (!v::stringType()->length(2, 100)->validate($batiment)) {
             $errors['batiment'] = 'Le bâtiment doit contenir entre 2 et 100 caractères.';
         } else {
             $acceptedData['batiment'] = $batiment;
@@ -43,17 +45,15 @@ final class SalleValidator implements ValidatorInterface
             FILTER_VALIDATE_INT
         );
 
-        if ($capacite === false || $capacite === null) {
+        if (!v::intVal()->between(1, 1000)->validate($capacite)) {
             $errors['capacite'] = 'La capacité doit être un nombre entier.';
-        } elseif ($capacite <= 0) {
-            $errors['capacite'] = 'La capacité doit être supérieure à zéro.';
         } else {
             $acceptedData['capacite'] = $capacite;
         }
 
         $type = trim((string) ($data['type'] ?? ''));
 
-        if (!in_array($type, self::TYPES_AUTORISES, true)) {
+        if (!v::in(self::TYPES_AUTORISES)->validate($type)) {
             $errors['type'] = 'Le type de salle sélectionné est invalide.';
         } else {
             $acceptedData['type'] = $type;

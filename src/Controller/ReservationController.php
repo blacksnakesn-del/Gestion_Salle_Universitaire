@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\DTO\ReservationDTO;
-use App\Repository\ReservationRepository;
-use App\Repository\SalleRepository;
+use App\Repository\ReservationRepositoryInterface;
+use App\Repository\SalleRepositoryInterface;
 use App\Security\Csrf;
 use App\Service\AnnulerReservationService;
 use App\Service\ReservationService;
@@ -18,8 +18,8 @@ use Throwable;
 final class ReservationController
 {
     public function __construct(
-        private ReservationRepository $reservationRepository,
-        private SalleRepository $salleRepository,
+        private ReservationRepositoryInterface $reservationRepository,
+        private SalleRepositoryInterface $salleRepository,
         private ReservationValidator $validator,
         private ReservationService $reservationService,
         private AnnulerReservationService $annulerReservationService
@@ -43,7 +43,7 @@ final class ReservationController
         $error = $_GET['error'] ?? null;
         $title = 'Réservations';
 
-        require __DIR__ . '/../../templates/reservation/index.php';
+        renderView('reservation/index', compact('reservations', 'salles', 'selectedSalle', 'success', 'error', 'title'));
     }
 
     public function show(int $id): void
@@ -52,7 +52,7 @@ final class ReservationController
 
         if ($reservation === null) {
             http_response_code(404);
-            require __DIR__ . '/../../templates/error/404.php';
+            renderView('error/404');
             return;
         }
 
@@ -61,7 +61,7 @@ final class ReservationController
         $error = $_GET['error'] ?? null;
         $csrfToken = Csrf::token();
 
-        require __DIR__ . '/../../templates/reservation/show.php';
+        renderView('reservation/show', compact('reservation', 'title', 'success', 'error', 'csrfToken'));
     }
 
     public function create(): void
@@ -83,7 +83,7 @@ final class ReservationController
             'date_fin' => '',
         ];
 
-        require __DIR__ . '/../../templates/reservation/form.php';
+        renderView('reservation/form', compact('title', 'salles', 'errors', 'serviceError', 'csrfToken', 'old'));
     }
 
     public function store(): void
@@ -103,7 +103,7 @@ final class ReservationController
             $salles = $this->salleRepository->findActive();
             $serviceError = null;
             $csrfToken = Csrf::token();
-            require __DIR__ . '/../../templates/reservation/form.php';
+            renderView('reservation/form', compact('title', 'salles', 'errors', 'serviceError', 'csrfToken', 'old'));
             return;
         }
 
@@ -129,7 +129,7 @@ final class ReservationController
             $serviceError = $e instanceof RuntimeException
                 ? $e->getMessage()
                 : 'Une erreur est survenue lors de la création de la réservation.';
-            require __DIR__ . '/../../templates/reservation/form.php';
+            renderView('reservation/form', compact('title', 'salles', 'errors', 'serviceError', 'csrfToken', 'old'));
         }
     }
 

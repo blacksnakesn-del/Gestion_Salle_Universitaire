@@ -6,8 +6,8 @@ namespace App\Service;
 
 use App\DTO\ReservationDTO;
 use App\Model\Reservation;
-use App\Repository\ReservationRepository;
-use App\Repository\SalleRepository;
+use App\Repository\ReservationRepositoryInterface;
+use App\Repository\SalleRepositoryInterface;
 use DateTimeImmutable;
 use Illuminate\Database\Capsule\Manager;
 use RuntimeException;
@@ -15,20 +15,18 @@ use RuntimeException;
 final class ReservationService
 {
     public function __construct(
-        private SalleRepository $salleRepository,
-        private ReservationRepository $reservationRepository
+        private SalleRepositoryInterface $salleRepository,
+        private ReservationRepositoryInterface $reservationRepository,
+        private Manager $database
     ) {
     }
 
     public function createReservation(
         ReservationDTO $dto
     ): Reservation {
-        return Manager::connection()->transaction(function () use ($dto): Reservation {
+        return $this->database->connection()->transaction(function () use ($dto): Reservation {
             // Le verrou empêche deux créations concurrentes pour la même salle.
-            $salle = \App\Model\Salle::query()
-                ->whereKey($dto->salleId)
-                ->lockForUpdate()
-                ->first();
+            $salle = $this->salleRepository->findForUpdate($dto->salleId);
 
             if ($salle === null) {
                 throw new RuntimeException(

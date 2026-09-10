@@ -2,6 +2,8 @@
 
 namespace App\Validation;
 
+use Respect\Validation\Validator as v;
+
 final class ReservationValidator implements ValidatorInterface
 {
     public function validate(array $data): ValidationResult
@@ -15,7 +17,7 @@ final class ReservationValidator implements ValidatorInterface
             FILTER_VALIDATE_INT
         );
 
-        if ($salleId === false || $salleId === null || $salleId <= 0) {
+        if (!v::intVal()->positive()->validate($salleId)) {
             $errors['salle_id'] = 'La salle sélectionnée est invalide.';
         } else {
             $acceptedData['salle_id'] = $salleId;
@@ -24,21 +26,17 @@ final class ReservationValidator implements ValidatorInterface
         
         $responsable = trim((string) ($data['responsable'] ?? ''));
 
-        if ($responsable === '') {
-            $errors['responsable'] = 'Le responsable est obligatoire.';
-        } elseif (
-            mb_strlen($responsable) < 2 ||
-            mb_strlen($responsable) > 120
-        ) {
-            $errors['responsable'] =
-                'Le responsable doit contenir entre 2 et 120 caractères.';
+        if (!v::stringType()->notEmpty()->length(2, 120)->validate($responsable)) {
+            $errors['responsable'] = $responsable === ''
+                ? 'Le responsable est obligatoire.'
+                : 'Le responsable doit contenir entre 2 et 120 caractères.';
         } else {
             $acceptedData['responsable'] = $responsable;
         }
 
         $email = trim((string) ($data['email'] ?? ''));
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!v::email()->validate($email)) {
             $errors['email'] = 'L’adresse email est invalide.';
         } else {
             $acceptedData['email'] = $email;
@@ -46,11 +44,10 @@ final class ReservationValidator implements ValidatorInterface
 
         $motif = trim((string) ($data['motif'] ?? ''));
 
-        if ($motif === '') {
-            $errors['motif'] = 'Le motif est obligatoire.';
-        } elseif (mb_strlen($motif) < 5 || mb_strlen($motif) > 255) {
-            $errors['motif'] =
-                'Le motif doit contenir entre 5 et 255 caractères.';
+        if (!v::stringType()->notEmpty()->length(5, 255)->validate($motif)) {
+            $errors['motif'] = $motif === ''
+                ? 'Le motif est obligatoire.'
+                : 'Le motif doit contenir entre 5 et 255 caractères.';
         } else {
             $acceptedData['motif'] = $motif;
         }

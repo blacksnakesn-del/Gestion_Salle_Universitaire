@@ -31,23 +31,23 @@ $salles = [
         'active' => true,
     ],
     [
-        'nom' => 'Laboratoire 1',
+        'nom' => 'Laboratoire Chimie',
         'batiment' => 'C',
-        'capacite' => 25,
+        'capacite' => 24,
         'type' => 'laboratoire',
         'active' => true,
     ],
     [
         'nom' => 'Amphithéâtre A',
         'batiment' => 'A',
-        'capacite' => 200,
+        'capacite' => 250,
         'type' => 'amphitheatre',
         'active' => true,
     ],
     [
-        'nom' => 'Salle Réunion 1',
+        'nom' => 'Salle de réunion',
         'batiment' => 'D',
-        'capacite' => 15,
+        'capacite' => 12,
         'type' => 'reunion',
         'active' => true,
     ],
@@ -60,6 +60,14 @@ $salles = [
     ],
 ];
 
-$capsule->table('salles')->insert($salles);
+foreach ($salles as $salle) {
+    $capsule->table('salles')->updateOrInsert(
+        [
+            'nom' => $salle['nom'],
+            'batiment' => $salle['batiment'],
+        ],
+        $salle
+    );
+}
 
 echo "Données initiales insérées avec succès." . PHP_EOL;

@@ -11,27 +11,18 @@ use Illuminate\Database\Eloquent\Collection;
 
 final class EloquentReservationRepository implements ReservationRepositoryInterface
 {
-   
     public function findAll(): Collection
     {
-        return Reservation::query()
-            ->with('salle')
-            ->orderBy('date_debut')
-            ->get();
+        return Reservation::query()->with('salle')->orderBy('date_debut')->get();
     }
 
     public function findById(int $id): ?Reservation
     {
-        return Reservation::query()
-            ->with('salle')
-            ->find($id);
+        return Reservation::query()->with('salle')->find($id);
     }
 
-    public function hasOverlap(
-        int $salleId,
-        DateTimeImmutable $dateDebut,
-        DateTimeImmutable $dateFin
-    ): bool {
+    public function hasOverlap(int $salleId, DateTimeImmutable $dateDebut, DateTimeImmutable $dateFin): bool
+    {
         return Reservation::query()
             ->where('salle_id', $salleId)
             ->where('statut', 'confirmée')
@@ -40,11 +31,11 @@ final class EloquentReservationRepository implements ReservationRepositoryInterf
             ->exists();
     }
 
-   
     public function findBySalleId(int $salleId): Collection
     {
         return Reservation::query()
             ->where('salle_id', $salleId)
+            ->with('salle')
             ->orderBy('date_debut')
             ->get();
     }

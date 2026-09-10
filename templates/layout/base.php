@@ -14,7 +14,7 @@ $error = $error ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Gestion des réservations de salles universitaires">
     <title><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?> · UniReserve</title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/Css/app.css">
 </head>
 <body>
 <div class="ambient ambient-one"></div>

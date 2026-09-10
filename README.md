@@ -2,12 +2,23 @@
 
 ## Lancement avec Docker
 
-Copiez `.env.exemple` vers `.env`, puis démarrez l'application :
+Copiez `.env.example` vers `.env`, puis démarrez l'application :
 
 ```bash
-cp .env.exemple .env
+cp .env.example .env
 docker compose up --build
 ```
+
+Les migrations sont exécutées automatiquement au démarrage du conteneur. Pour
+charger les salles initiales, exécutez `docker compose exec app php database/seed.php`.
+
+Les tests se lancent avec :
+
+```bash
+./vendor/bin/phpunit
+```
+
+Les choix d'architecture sont détaillés dans [ARCHITECTURE.md](ARCHITECTURE.md).
 
 L'application est disponible sur [http://localhost:8081](http://localhost:8081).
 
