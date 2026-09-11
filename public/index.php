@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use DI\ContainerBuilder;
 use FastRoute\Dispatcher;
+use Illuminate\Database\Capsule\Manager;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -14,6 +15,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 $builder = new ContainerBuilder();
 $builder->addDefinitions(dirname(__DIR__) . '/config/container.php');
 $container = $builder->build();
+$container->get(Manager::class);
 $dispatcher = $container->get(Dispatcher::class);
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);

@@ -19,6 +19,8 @@ Les tests se lancent avec :
 ```
 
 Les choix d'architecture sont détaillés dans [ARCHITECTURE.md](ARCHITECTURE.md).
+La documentation complète du projet est disponible dans
+[DOCUMENTATION.md](DOCUMENTATION.md).
 
 L'application est disponible sur [http://localhost:8081](http://localhost:8081).
 
