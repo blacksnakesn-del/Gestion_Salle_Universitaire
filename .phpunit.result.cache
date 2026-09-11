@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"Tests\\Unit\\ValidationTest::testReservationRejectsInvalidEmailAndShortMotif":0.005,"Tests\\Unit\\ValidationTest::testSalleRejectsUnknownTypeAndInvalidCapacity":0.001,"Tests\\Unit\\ValidationTest::testValidReservationReturnsTypedAcceptedData":0}}
