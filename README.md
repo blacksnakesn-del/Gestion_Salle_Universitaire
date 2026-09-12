@@ -103,3 +103,25 @@ Le fichier `.gitlab-ci.yml` publie automatiquement l'image dans le Container
 Registry GitLab lorsqu'un tag est envoyé. Dans GitLab, activez le registre du
 projet si nécessaire, puis consultez `Deploy > Container Registry` pour obtenir
 l'adresse de l'image.
+
+## Déploiement sur Render
+
+Le fichier `render.yaml` configure le service web PHP/Apache. Render construit
+le `Dockerfile` depuis le dépôt et fournit automatiquement le port HTTP via la
+variable `PORT`.
+
+L'application utilise MySQL. Render ne fournit pas de MySQL gratuit intégré :
+il faut donc renseigner dans Render les variables `DB_HOST`, `DB_DATABASE`,
+`DB_USERNAME` et `DB_PASSWORD` d'une base MySQL externe. La base doit accepter
+les connexions distantes et conserver ses données indépendamment du service web.
+
+Dans Render :
+
+1. `New > Blueprint` puis sélectionner le dépôt.
+2. Vérifier le service créé depuis `render.yaml`.
+3. Ajouter les quatre variables MySQL dans `Environment`.
+4. Lancer le déploiement et ouvrir l'URL `onrender.com` fournie.
+
+Le plan gratuit Render peut mettre le service en veille après une période sans
+trafic. Le premier accès peut donc être lent, et il ne faut pas y stocker des
+fichiers locaux persistants.
