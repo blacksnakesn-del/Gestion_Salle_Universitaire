@@ -24,14 +24,14 @@ services:
     container_name: gestion_universitaire_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: gestion_universitaire
-      MYSQL_USER: gestion_user
-      MYSQL_PASSWORD: gestion_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-gestion_universitaire}
+      MYSQL_USER: ${MYSQL_USER:-gestion_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-gestion_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
       interval: 5s
       timeout: 5s
       retries: 10

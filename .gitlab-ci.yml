@@ -1,0 +1,22 @@
+stages:
+  - image
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_IMAGE: "$CI_REGISTRY_IMAGE/gestion-salle-universitaire"
+
+publish-image:
+  stage: image
+  image: docker:27.5.1-cli
+  services:
+    - name: docker:27.5.1-dind
+      alias: docker
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  before_script:
+    - until docker info; do sleep 1; done
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - docker build --pull --tag "$DOCKER_IMAGE:$CI_COMMIT_TAG" --tag "$DOCKER_IMAGE:latest" .
+    - docker push "$DOCKER_IMAGE:$CI_COMMIT_TAG"
+    - docker push "$DOCKER_IMAGE:latest"

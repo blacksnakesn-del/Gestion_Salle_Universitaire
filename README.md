@@ -65,6 +65,16 @@ chmod +x docker-publish.sh
 Le script vérifie que le tag existe, exporte son contenu, puis exécute le build et
 le push Docker avec le même tag.
 
+Pour mettre aussi à jour le tag Docker Hub utilisé comme version courante :
+
+```bash
+docker login
+./docker-publish.sh V2.0.1 blacksnakesn --latest
+```
+
+La commande publie `V2.0.1` et `latest`. Elle doit être relancée pour chaque
+nouveau tag si vous publiez manuellement.
+
 Pour publier un tag GitHub existant, remplacez simplement `VERSION`, par exemple
 `V0.8.0`, `V0.10.0`, `V0.11.0` ou `V0.12.0`. Les tags `V0.0.0` à `V0.7.0` ne
 contiennent pas de `Dockerfile`.
@@ -78,3 +88,18 @@ git push origin V0.13.0
 
 Pour utiliser une image publiée avec Compose, définissez `DOCKER_IMAGE` et
 `IMAGE_TAG`, puis lancez `docker compose up -d`.
+
+## Publication sur GitLab
+
+Ajoutez le dépôt GitLab comme remote, puis envoyez la branche et les tags :
+
+```bash
+git remote add gitlab https://gitlab.com/<groupe>/<projet>.git
+git push -u gitlab feature/authentification
+git push gitlab V2.0.1
+```
+
+Le fichier `.gitlab-ci.yml` publie automatiquement l'image dans le Container
+Registry GitLab lorsqu'un tag est envoyé. Dans GitLab, activez le registre du
+projet si nécessaire, puis consultez `Deploy > Container Registry` pour obtenir
+l'adresse de l'image.
