@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\DTO\SalleDTO;
+use App\Repository\ReservationRepositoryInterface;
 use App\Repository\SalleRepositoryInterface;
 use App\Security\Csrf;
 use App\Validation\SalleValidator;
@@ -13,6 +14,7 @@ final class SalleController
 {
     public function __construct(
         private SalleRepositoryInterface $salleRepository,
+        private ReservationRepositoryInterface $reservationRepository,
         private SalleValidator $validator
     ) {
     }
@@ -21,7 +23,8 @@ final class SalleController
     {
         $salles = $this->salleRepository->findAll();
         $title = 'Salles';
-        $success = $_GET['success'] ?? null;
+        $get = $_GET ?? [];
+        $success = $get['success'] ?? null;
 
         renderView('Salle/index', compact('salles', 'title', 'success'));
     }
@@ -36,13 +39,12 @@ final class SalleController
             return;
         }
 
-        $reservations = $salle->reservations()
-            ->orderByDesc('date_debut')
-            ->get();
+        $reservations = $this->reservationRepository->findBySalleId($id);
         $title = 'Salle ' . $salle->nom;
 
-        $success = $_GET['success'] ?? null;
-        $error = $_GET['error'] ?? null;
+        $get = $_GET ?? [];
+        $success = $get['success'] ?? null;
+        $error = $get['error'] ?? null;
 
         renderView('Salle/show', compact('salle', 'reservations', 'title', 'success', 'error'));
     }
@@ -67,8 +69,9 @@ final class SalleController
 
     public function store(): void
     {
-        Csrf::verify($_POST['_csrf_token'] ?? null);
-        $data = $_POST;
+        $post = $_POST ?? [];
+        Csrf::verify($post['_csrf_token'] ?? null);
+        $data = $post;
         $validation = $this->validator->validate($data);
         $errors = $validation->getErrors();
         $old = $data;
@@ -83,10 +86,10 @@ final class SalleController
         }
 
         $dto = new SalleDTO(
-            nom: trim((string) $data['nom']),
-            batiment: trim((string) $data['batiment']),
-            capacite: (int) $data['capacite'],
-            type: (string) $data['type'],
+            nom: trim((string) ($data['nom'] ?? '')),
+            batiment: trim((string) ($data['batiment'] ?? '')),
+            capacite: (int) ($data['capacite'] ?? 0),
+            type: (string) ($data['type'] ?? ''),
             active: isset($data['active']) && in_array((string) $data['active'], ['1', 'true'], true),
         );
 
@@ -124,7 +127,8 @@ final class SalleController
 
     public function update(int $id): void
     {
-        Csrf::verify($_POST['_csrf_token'] ?? null);
+        $post = $_POST ?? [];
+        Csrf::verify($post['_csrf_token'] ?? null);
         $salle = $this->salleRepository->findById($id);
 
         if ($salle === null) {
@@ -133,7 +137,7 @@ final class SalleController
             return;
         }
 
-        $data = $_POST;
+        $data = $post;
         $validation = $this->validator->validate($data);
         $errors = $validation->getErrors();
         $old = $data;
@@ -148,10 +152,10 @@ final class SalleController
         }
 
         $dto = new SalleDTO(
-            nom: trim((string) $data['nom']),
-            batiment: trim((string) $data['batiment']),
-            capacite: (int) $data['capacite'],
-            type: (string) $data['type'],
+            nom: trim((string) ($data['nom'] ?? '')),
+            batiment: trim((string) ($data['batiment'] ?? '')),
+            capacite: (int) ($data['capacite'] ?? 0),
+            type: (string) ($data['type'] ?? ''),
             active: isset($data['active']) && in_array((string) $data['active'], ['1', 'true'], true),
         );
 

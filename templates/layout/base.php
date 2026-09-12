@@ -31,6 +31,12 @@ $error = $error ?? null;
         <a href="/salles">Salles</a>
         <a href="/reservations">Réservations</a>
         <a class="nav-cta" href="/reservations/create">+ Réserver</a>
+        <?php if (class_exists(\App\Security\Auth::class) && \App\Security\Auth::check()): ?>
+            <form method="post" action="/logout">
+                <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(\App\Security\Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
+                <button class="nav-logout" type="submit">Déconnexion</button>
+            </form>
+        <?php endif; ?>
     </nav>
 </header>
 

@@ -28,7 +28,8 @@ final class ReservationController
 
     public function index(): void
     {
-        $salleId = filter_input(INPUT_GET, 'salle_id', FILTER_VALIDATE_INT);
+        $get = $_GET ?? [];
+        $salleId = filter_var($get['salle_id'] ?? null, FILTER_VALIDATE_INT);
 
         if ($salleId !== false && $salleId !== null && $salleId > 0) {
             $reservations = $this->reservationRepository->findBySalleId($salleId);
@@ -39,8 +40,8 @@ final class ReservationController
         }
 
         $salles = $this->salleRepository->findAll();
-        $success = $_GET['success'] ?? null;
-        $error = $_GET['error'] ?? null;
+        $success = $get['success'] ?? null;
+        $error = $get['error'] ?? null;
         $title = 'Réservations';
 
         renderView('reservation/index', compact('reservations', 'salles', 'selectedSalle', 'success', 'error', 'title'));
@@ -57,8 +58,9 @@ final class ReservationController
         }
 
         $title = 'Réservation #' . $reservation->id;
-        $success = $_GET['success'] ?? null;
-        $error = $_GET['error'] ?? null;
+        $get = $_GET ?? [];
+        $success = $get['success'] ?? null;
+        $error = $get['error'] ?? null;
         $csrfToken = Csrf::token();
 
         renderView('reservation/show', compact('reservation', 'title', 'success', 'error', 'csrfToken'));
@@ -71,7 +73,8 @@ final class ReservationController
         $errors = [];
         $serviceError = null;
         $csrfToken = Csrf::token();
-        $selectedSalleId = filter_input(INPUT_GET, 'salle_id', FILTER_VALIDATE_INT);
+        $get = $_GET ?? [];
+        $selectedSalleId = filter_var($get['salle_id'] ?? null, FILTER_VALIDATE_INT);
         $old = [
             'salle_id' => $selectedSalleId !== false && $selectedSalleId !== null && $selectedSalleId > 0
                 ? (string) $selectedSalleId
@@ -88,7 +91,9 @@ final class ReservationController
 
     public function store(): void
     {
-        $data = $_POST;
+        $post = $_POST ?? [];
+        Csrf::verify($post['_csrf_token'] ?? null);
+        $data = $post;
 
         // datetime-local produit Y-m-d\TH:i ; le validator travaille en Y-m-d H:i:s.
         $data['date_debut'] = $this->normalizeDateInput($data['date_debut'] ?? '');
@@ -96,7 +101,7 @@ final class ReservationController
 
         $validation = $this->validator->validate($data);
         $errors = $validation->getErrors();
-        $old = $_POST;
+        $old = $post;
 
         if (!$validation->isValid()) {
             $title = 'Nouvelle réservation';
@@ -156,10 +161,6 @@ final class ReservationController
         }
 
         $value = str_replace('T', ' ', $value);
-
-        if (strlen($value) === 16) {
-            return $value . ':00';
-        }
 
         return $value;
     }

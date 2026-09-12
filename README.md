@@ -1,5 +1,19 @@
 # Déploiement Docker
 
+## Connexion
+
+L'application demande une authentification avant l'accès aux salles et aux réservations.
+Un utilisateur peut créer son compte depuis `/register`, puis se connecter depuis `/login`.
+Les comptes sont stockés dans la table `users`.
+
+Pour respecter la consigne actuelle, les mots de passe sont stockés sans hachage.
+Cette décision est volontairement limitée à cet exercice et doit être remplacée par
+`password_hash()` et `password_verify()` avant toute utilisation réelle.
+
+phpMyAdmin est disponible à l'adresse http://localhost:8082. Utilisez l'hôte `db`,
+l'utilisateur `gestion_user`, le mot de passe `gestion_password` et la base
+`gestion_universitaire`.
+
 ## Lancement avec Docker
 
 Copiez `.env.example` vers `.env`, puis démarrez l'application :

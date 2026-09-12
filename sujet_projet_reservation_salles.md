@@ -724,3 +724,4 @@ Si le cœur obligatoire est validé, vous pouvez ajouter :
 * API JSON & Tests HTTP ;
 * Transactions lors des réservations & Protection contre les réservations simultanées ;
 * Docker & CI/CD (Intégration continue).
+ 

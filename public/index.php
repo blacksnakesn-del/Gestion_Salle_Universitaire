@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use DI\ContainerBuilder;
+use App\Security\Auth;
 use FastRoute\Dispatcher;
 use Illuminate\Database\Capsule\Manager;
 
@@ -23,6 +24,11 @@ $path = is_string($path) && $path !== '' ? $path : '/';
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
 $routeInfo = $dispatcher->dispatch($method, $path);
+
+if (!Auth::check() && !in_array($path, ['/login', '/register'], true)) {
+    header('Location: /login');
+    exit;
+}
 
 switch ($routeInfo[0]) {
     case Dispatcher::NOT_FOUND:
@@ -48,7 +54,10 @@ switch ($routeInfo[0]) {
 
         [$controllerClass, $action] = $handler;
         $controller = $container->get($controllerClass);
-        $controller->{$action}(...array_values($vars));
+        $controller->{$action}(...array_map(
+            static fn (string $value): int|string => ctype_digit($value) ? (int) $value : $value,
+            array_values($vars)
+        ));
         break;
 
     default:

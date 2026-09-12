@@ -88,6 +88,17 @@ button, input, select, textarea { font: inherit; }
 .nav-links a:hover { color: var(--cyan-dark); background: rgba(0, 184, 200, 0.08); }
 .nav-links .nav-cta { color: var(--ink); background: var(--acid); border: 1px solid var(--ink); }
 .nav-links .nav-cta:hover { color: var(--ink); background: #c9f264; }
+.nav-links form { display: inline-flex; }
+.nav-logout {
+    padding: 8px 12px;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.nav-logout:hover { color: var(--danger); }
 
 .container { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 72px 0 96px; }
 .page-header, .page-head {
@@ -225,6 +236,19 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .footer { display: flex; justify-content: space-between; gap: 16px; max-width: 1120px; margin: 0 auto; padding: 18px 0 28px; color: var(--ink-soft); border-top: 1px solid var(--line); font-family: 'DM Mono', monospace; font-size: 0.68rem; }
 .full-width { width: 100%; margin-top: 24px; }
 
+.auth-page { display: grid; min-height: 100vh; place-items: center; padding: 32px; }
+.auth-shell { display: grid; width: min(980px, 100%); grid-template-columns: 1fr minmax(320px, 420px); align-items: center; gap: 64px; }
+.auth-intro h1 { max-width: 520px; margin-top: 16px; font-size: clamp(2.6rem, 6vw, 5.4rem); letter-spacing: -0.07em; line-height: 0.94; }
+.auth-intro p { max-width: 440px; margin-top: 22px; color: var(--ink-soft); font-size: 1.05rem; }
+.auth-card h2 { margin-top: 34px; font-size: 1.8rem; }
+.auth-card > .muted { margin-top: 6px; }
+.auth-form { margin-top: 28px; }
+.auth-form .form-group + .form-group { margin-top: 18px; }
+.auth-brand { width: fit-content; }
+.auth-switch { margin-top: 22px; color: var(--ink-soft); font-size: 0.82rem; text-align: center; }
+.auth-switch a { color: var(--cyan-dark); font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
 @media (max-width: 760px) {
     .navbar, .page-header, .page-head, .filter-bar, .footer { align-items: flex-start; flex-direction: column; }
     .navbar { padding: 18px 20px; }
@@ -232,6 +256,9 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     .container { width: min(100% - 32px, 620px); padding-top: 44px; }
     .stats-row, .form-grid, .detail-grid, .reservation-layout { grid-template-columns: 1fr; }
     .page-header h1, .page-head h1 { font-size: 2.7rem; }
+    .auth-page { padding: 20px; }
+    .auth-shell { grid-template-columns: 1fr; gap: 28px; }
+    .auth-intro h1 { font-size: 3rem; }
     .form-actions { align-items: stretch; flex-direction: column-reverse; }
     .form-actions .btn { width: 100%; }
 }

@@ -21,4 +21,6 @@ interface SalleRepositoryInterface
     public function update(int $id, SalleDTO $dto): Salle;
 
     public function findForUpdate(int $id): ?Salle;
+
+    public function findReservations(int $id): \Illuminate\Database\Eloquent\Collection;
 }

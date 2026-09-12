@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\DTO\SalleDTO;
+use App\Model\Reservation;
 use App\Model\Salle;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -65,5 +66,13 @@ final class EloquentSalleRepository implements SalleRepositoryInterface
     public function findForUpdate(int $id): ?Salle
     {
         return Salle::query()->whereKey($id)->lockForUpdate()->first();
+    }
+
+    public function findReservations(int $id): \Illuminate\Database\Eloquent\Collection
+    {
+        return Reservation::query()
+            ->where('salle_id', $id)
+            ->orderByDesc('date_debut')
+            ->get();
     }
 }
